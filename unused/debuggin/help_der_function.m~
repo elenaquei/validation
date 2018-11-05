@@ -1,0 +1,16 @@
+function y = help_der_function(x)
+% x   XI_vector
+
+T= x.scalar(1);
+lambda = x.scalar(2);
+a = x.scalar(3);
+x1 = x.scalar(4);
+x2 = x.scalar(5);
+y1 = x.vector(1,:);
+y2 = x.vector(2,:);
+nodes = (length(y1)-1)/2;
+Conv = @(x,y) conv(x,y,'same');
+der = 1i*(-nodes:nodes);
+
+D1F1 = -der -T*lambda*one_four + 3*T*x1^2*one_four+6*T*a*x1*y1+3*T*a^2*Conv(y1,y1)+...
+    T*x
