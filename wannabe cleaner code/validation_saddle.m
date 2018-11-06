@@ -1,9 +1,10 @@
 function [saddle_confirmed]=validation_saddle(F_old,F_new, x0,x1,num_variable)
 global use_intlab 
 global talkative
+global refinement_saddle
 temp_use_intlab = use_intlab;
 use_intlab = 0;
- 
+
 [numerical_check] = if_saddle_numerical(F_old,F_new, x0,x1);
  
 if ~numerical_check
@@ -15,9 +16,12 @@ if ~exist('num_variable','var')|| ~exist('num_variable','var')
 end
  
 saddle_confirmed = 0;
- 
-n_intervals= 300;
- 
+
+if isempty(refinement_saddle)
+    n_intervals= 300;
+else
+    n_intervals = refinement_saddle;
+end
  
 % 
 % [numerical_check, x_prime0, x_prime1,x_prime_prime0,x_prime_prime1] = if_saddle_numerical(F_old,F_new, x0,x1);
@@ -81,7 +85,7 @@ for i = 1: n_intervals
     % continue
     % %debug
      
-    [bool_saddle, z_crosses]=check_if_saddle_possible(saddle_x0_int,saddle_x1_int); % done
+    [bool_saddle, z_crosses]=check_if_saddle_possible(saddle_x0_int,saddle_x1_int,num_variable); % done
     if bool_saddle && z_crosses
         error('what to do now?')
     end
@@ -108,7 +112,7 @@ for i = 1: n_intervals
                 saddle_F1_int, saddle_x0_int, saddle_x1_int, n_intervals_ref, j);% done
             saddle_x0_small_int = Newton_2(saddle_x0_small_int,F0_small_int);
             saddle_x1_small_int = Newton_2(saddle_x1_small_int,F1_small_int);
-            bool_saddle_small_int=check_if_saddle_possible(saddle_x0_small_int,saddle_x1_small_int); % done
+            bool_saddle_small_int=check_if_saddle_possible(saddle_x0_small_int,saddle_x1_small_int,num_variable); % done
             if bool_saddle_small_int
                 use_intlab = temp_use_intlab;
                 bool_saddle_tot = saddle_validation(saddle_x0_small_int, saddle_x1_small_int, F0_small_int, F1_small_int,num_variable);
@@ -180,7 +184,7 @@ saddle_x0 = Xi_vector([x.scalar,y.scalar,z.scalar],[x.vector;y.vector;z.vector])
 saddle_x = Newton_2(saddle_x0, saddle_F);
 end
  
-function [bool_saddle, z_crosses]=check_if_saddle_possible(x0,x1)
+function [bool_saddle, z_crosses]=check_if_saddle_possible(x0,x1,num_variable)
 % function [bool_saddle, z_crosses]=check_if_saddle_possible(x0_int,x1_int)
 %
 % inputs: 2 big solutions
@@ -192,11 +196,15 @@ if size_scalar ~=ceil(size_scalar)
 end
  
 y0 = (x0.scalar(size_scalar+1:size_scalar*2));
+y0 = y0(num_variable);
 y1 = (x1.scalar(size_scalar+1:size_scalar*2));
- 
+y1 = y1(num_variable);
+
 z0 = (x0.scalar(size_scalar*2+1:size_scalar*3));
+z0 = z0(num_variable);
 z1 = (x1.scalar(size_scalar*2+1:size_scalar*3));
- 
+z1 = z1(num_variable);
+
 index_saddle = find( y0.*y1<0);
 if ~isempty(index_saddle)
     bool_saddle=1;
@@ -304,7 +312,7 @@ if isempty(index_saddle)
         end
     end
 end
-index_saddle= find(z0(index_saddle).*z1(index_saddle)>0);
+index_saddle= find(z0(num_variable(index_saddle)).*z1(num_variable(index_saddle))>0);
 if length(index_saddle)==1
     saddle_confirmed = 1;
     if talkative>0

@@ -47,7 +47,7 @@ end
 
 if strcmp(possibility,'hopf')||strcmp(possibility,'all')
     try
-        example_hopf % works as of 5th July 2018
+        %example_hopf % works as of 5th July 2018
         try_example_hopf=1;
     catch e
         fprintf(1,'There was an error! The message was:\n%s',e.message);

@@ -12,10 +12,16 @@ global nu
 global use_intlab 
 %global talkative 
 global RAD_MAX
+global rescaling_saddle
+global refinement_saddle
+rescaling_saddle = 5;
+refinement_saddle =300;
 %talkative = 2;
 use_intlab = 0;
 nu = 1.01;
 RAD_MAX = 10^-2;
+
+
 
 try 
     intval(1);

@@ -39,11 +39,11 @@ Imax = zeros(length(a),1);
 
 for i = 1:length(a)
     if a(i)>0
-        Imin = ( - b(i) - sqrt(Delta(i)))./(2*a(i));
-        Imax = ( - b(i) + sqrt(Delta(i)))./(2*a(i));
+        Imin(i) = ( - b(i) - sqrt(Delta(i)))./(2*a(i));
+        Imax(i) = ( - b(i) + sqrt(Delta(i)))./(2*a(i));
     else
-        Imin = -c(i)/b(i);
-        Imax = 10;
+        Imin(i) = -c(i)/b(i);
+        Imax(i) = 10;
     end
 end
 

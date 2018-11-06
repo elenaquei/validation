@@ -24,7 +24,7 @@ RAD_MAX = 10^-2; % maximum radius allowed, used for the computation of the Z2 bo
 nu = 1.1; % nu of the nu-norm used
 
 rescaling_saddle=1000000;
-refinement_saddle = 300;
+refinement_saddle = 3;
 
 % if first run, add Intlab and start it (take care, starting Intlab cancels
 % all break points)
