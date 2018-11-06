@@ -309,7 +309,7 @@ for i =1 : n_iter
     % check for "ideal" number of nodes
     first_big_mode = find(log(sum(abs(x1.vector),1))>-14,1);
     ideal_small_modes = max(5,0.25*x0.nodes);
-    
+%     
     if first_big_mode <= 0.9*ideal_small_modes
         add_node = floor((-first_big_mode+ideal_small_modes)*0.5+1);
         decrease_node = 0;
@@ -333,7 +333,7 @@ for i =1 : n_iter
         DF1 = derivative_to_matrix(derivative(F_new,x1,0));
         Anew = inv(DF1);
     end
-    if decrease_node 
+    if decrease_node && 1
         if talkative >1
             fprintf('At iteration %i, the number of nodes is decreased by %i. New number of modes %i\n', i, abs(decrease_node), x0.nodes+decrease_node);
         end

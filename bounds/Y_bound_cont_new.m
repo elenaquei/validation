@@ -44,13 +44,15 @@ xBarS_short=interval_Xi(xBar0,xBar1);
 min_coef1=min(coefs_linear1{1},coefs_linear0{1});
 max_coef1=min(coefs_linear1{1},coefs_linear0{1});
 coefs_linearS{1}=infsup(min_coef1,max_coef1);
+coefs_linearS{1}(1)=0;
 min_coef2=min(coefs_linear1{2},coefs_linear0{2});
 max_coef2=min(coefs_linear1{2},coefs_linear0{2});
 coefs_linearS{2}=infsup(min_coef2,max_coef2);
+coefs_linearS{2}(1,:,:)=0;
 min_coef3=min(coefs_linear1{3},coefs_linear0{3});
 max_coef3=min(coefs_linear1{3},coefs_linear0{3});
 coefs_linearS{3}=infsup(min_coef3,max_coef3);
-
+coefs_linearS{3}(1)=0;
 
 xBarS= reshape_Xi(xBarS_short,xBarS_short.nodes*(alpha0.vector_field.deg_vector-1));
 xBarDelta=reshape_Xi(xBarDelta_short,xBarS.nodes);

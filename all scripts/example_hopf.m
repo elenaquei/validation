@@ -13,12 +13,12 @@ global nu
 global use_intlab
 global rescaling_saddle
 global refinement_saddle
-%global talkative
+global talkative
 global RAD_MAX
 global Display
 % setting of some global varibales
 Display = 0; % plot of the radii polynomials along the way
-%talkative = 10; % how much does it talk
+talkative = 0; % how much does it talk
 use_intlab = 0; % DUMMY, should be changed! 
 RAD_MAX = 10^-2; % maximum radius allowed, used for the computation of the Z2 bound
 nu = 1.1; % nu of the nu-norm used
