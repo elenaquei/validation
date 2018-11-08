@@ -101,8 +101,8 @@ end
 Adagger_delta=DH1-DH0;
 
 % symmetrise A0 and A1
-%  A0=symmetrise_A(A0,xBar0);
-%  A1=symmetrise_A(A1,xBar0);
+A0=symmetrise_A(A0,xBar0);
+A1=symmetrise_A(A1,xBar0);
 
 % change into intvals
 if use_intlab
