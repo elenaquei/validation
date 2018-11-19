@@ -322,7 +322,7 @@ for i =1 : n_iter
     end
     
     if add_node
-        if talkative >1
+        if talkative >0
             fprintf('At iteration %i, the number of nodes is increased by %i. New number of modes %i\n', i, add_node, x0.nodes+add_node);
         end
         x1 = reshape_Xi(x1, x1.nodes+add_node);
@@ -334,7 +334,7 @@ for i =1 : n_iter
         Anew = inv(DF1);
     end
     if decrease_node 
-        if talkative >1
+        if talkative >0
             fprintf('At iteration %i, the number of nodes is decreased by %i. New number of modes %i\n', i, abs(decrease_node), x0.nodes+decrease_node);
         end
         % necessary temporary elements for "one point validation"
