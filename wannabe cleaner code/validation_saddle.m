@@ -2,17 +2,19 @@ function [saddle_confirmed]=validation_saddle(F_old,F_new, x0,x1,num_variable)
 global use_intlab 
 global talkative
 global refinement_saddle
+global rescaling_saddle 
 temp_use_intlab = use_intlab;
 use_intlab = 0;
 
-[numerical_check] = if_saddle_numerical(F_old,F_new, x0,x1);
+if ~exist('num_variable','var')|| ~exist('num_variable','var')
+    num_variable=1:x0.size_scalar;
+end
+
+[numerical_check,~,~,~,~,num_variable] = if_saddle_numerical(F_old,F_new, x0,x1, num_variable);
  
 if ~numerical_check
     saddle_confirmed = 0;
     return
-end
-if ~exist('num_variable','var')|| ~exist('num_variable','var')
-    num_variable=1:x0.size_scalar;
 end
  
 saddle_confirmed = 0;
@@ -78,9 +80,9 @@ for i = 1: n_intervals
     [saddle_F0_int, saddle_F1_int] = bigger_saddle_system(F0_int, F1_int, x0_int, x1_int); %done
     
     % DEBUG RYCHKOV
-    num_variable = 2;
-    rescale_derivative = 10^6;
-    rescale_second_der = 10^5;
+    %num_variable = 2;
+    rescale_derivative = rescaling_saddle(1);
+    rescale_second_der = rescaling_saddle(end);
     saddle_F0_int_loc = rescale(saddle_F0_int, 4, rescale_derivative);
     saddle_F1_int_loc = rescale(saddle_F1_int, 4, rescale_derivative);
     saddle_F0_int_loc = rescale(saddle_F0_int_loc, 6, rescale_second_der);

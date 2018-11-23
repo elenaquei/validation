@@ -10,13 +10,13 @@
 
 global nu
 global use_intlab 
-%global talkative 
+global talkative 
 global RAD_MAX
 global rescaling_saddle
 global refinement_saddle
-rescaling_saddle = 1;% still too big
+rescaling_saddle = [10^6,10^5];% still too big
 refinement_saddle =750;% from 500, good enough to find the saddle numerically
-%talkative = 2;
+talkative = 2;
 use_intlab = 0;
 nu = 1.01;
 RAD_MAX = 10^-2;

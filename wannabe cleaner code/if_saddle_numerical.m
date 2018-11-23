@@ -1,5 +1,5 @@
-function [flag, x_prime0, x_prime1,x_prime_prime0,x_prime_prime1] = if_saddle_numerical(F0,F1, x0,x1,num_variable)
-% function [flag, x_prime0, x_prime1,x_prime_prime0,x_prime_prime1] = if_saddle_numerical(F0,F1, x0,x1,num_variable)
+function [flag, x_prime0, x_prime1,x_prime_prime0,x_prime_prime1, num_var] = if_saddle_numerical(F0,F1, x0,x1,num_variable)
+% function [flag, x_prime0, x_prime1,x_prime_prime0,x_prime_prime1, num_var] = if_saddle_numerical(F0,F1, x0,x1,num_variable)
 %
 % numerical test for a saddle node in the segment [x0,x1].
 %
@@ -15,6 +15,7 @@ function [flag, x_prime0, x_prime1,x_prime_prime0,x_prime_prime1] = if_saddle_nu
 %               archlength
 % x_prime_prime0, x_prime_prime1   vectors, (very) approximate second
 % derivativec w.r.t. archlength
+% num_var       integer, position of the variable undergoing saddle
 
 if nargin<5 || ~exist('num_variable','var')
     num_variable = 1:x0.size_scalar;
@@ -64,6 +65,8 @@ if any(real(x_prime0(num_variable)).*real(x_prime1(num_variable))<0)
 %         warning('Impossible to expect validation, boundaries too close to zero')
 %         flag=0;
 %     else
+        num_var = find (real(x_prime0(num_variable)).*real(x_prime1(num_variable))<0);
+        num_var = num_variable(num_var);
         flag = 1;
 %     end
 end
