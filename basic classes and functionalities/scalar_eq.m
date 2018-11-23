@@ -231,6 +231,16 @@ classdef scalar_eq
         end
         % end RESHAPE
         
+        
+        % RESCALE
+        function beta = rescale(alpha, index_lambda, rescaling)
+            beta = alpha;
+            beta.linear_coef{1}(:,index_lambda) = alpha.linear_coef{1}(:,index_lambda) / rescaling;
+            beta.polynomial_equations = rescale(alpha.polynomial_equations, index_lambda, rescaling);
+        end
+        % end RESCALE
+        
+        
         % CHANGE_LIN_COEF
         function beta = change_lin_coef(alpha,lin_coef,n_lin_coef)
             % function beta = change_lin_coef(alpha,lin_coef,n_lin_coef)

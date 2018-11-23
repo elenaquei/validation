@@ -123,6 +123,24 @@ classdef full_problem
         end
         % end RESHAPE
         
+        
+        % RESCALE
+        function beta = rescale(alpha, index_lambda, rescaling)
+            if index_lambda > alpha.scalar_equations.size_scalar + ...
+                    alpha.scalar_equations.size_vector
+                error('Index of rescaled variable too big')
+            end
+            beta = alpha;
+            if index_lambda <= alpha.scalar_equations.size_scalar
+                beta.scalar_equations = rescale(alpha.scalar_equations, index_lambda, rescaling);
+                beta.vector_field = rescale(alpha.vector_field, index_lambda, rescaling);
+            else
+                error('not coded yet');
+            end
+            
+        end
+        % end RESCALE
+        
         % FUNCTION_DIRECTIONAL_SECOND_DERIVATIVE
         function DDH=Function_directional_second_derivative(alpha,xBar,dir1,dir2)
             %  function DDH=Function_directional_second_derivative(alpha,xBar,dir1,dir2)

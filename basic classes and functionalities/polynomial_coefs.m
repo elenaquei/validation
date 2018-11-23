@@ -224,6 +224,22 @@ classdef polynomial_coefs
         end
         % end COMPATIBLE_VEC
         
+        % RESCALE
+        function beta = rescale(alpha, index_lambda, rescaling)
+            if index_lambda > alpha.size_scalar
+                error('Not coded yet');
+            end
+            beta = alpha;
+            for j = 1:alpha.n_equations
+                T = find(alpha.power_scalar{j}(index_lambda,:));
+                for t = T
+                    beta.value{j}(t) = alpha.value{j}(t)/...
+                        (rescaling^alpha.power_scalar{j}(index_lambda,t));
+                end
+            end
+        end
+        % end RESCALE
+        
         
         % SET_DEGREES
         function beta = set_degrees(alpha)
