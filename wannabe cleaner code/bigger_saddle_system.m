@@ -113,7 +113,7 @@ coef_Delta{3} = (coef_1{3} - coef_0{3});
 
 new_coef_1_and_2 =@(vec,vec_Delta) cat(1,cat(2,vec, 0*vec, 0*vec),...
     cat(2,REF1*vec_Delta, vec, 0*vec),...
-    cat(2,0*vec, 2*REF1/REF2*vec_Delta, vec));
+    cat(2,0*vec, 2*REF2/REF1*vec_Delta, vec));
 new_coef_3 = @(vec,vec_Delta)[vert(vec);REF1*vert(vec_Delta); 0*vec];
 
 calligraphic_E0 = cell(3,1);
@@ -181,7 +181,7 @@ for i=1:n_equation
     if length(rescaling_saddle)==2
         r1 = rescaling_saddle(1);
         r2 = rescaling_saddle(2);
-        [c, d1, d2, d3] = sum_coef((r1/r2)^2*c_yy, d1_yy, d2_yy,d3_yy,c_z, d1_z, d2_z,d3_z);
+        [c, d1, d2, d3] = sum_coef((r2/r1)*c_yy, d1_yy, d2_yy,d3_yy,c_z, d1_z, d2_z,d3_z);
     end
     
     % delete zero terms

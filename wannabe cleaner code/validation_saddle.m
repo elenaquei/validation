@@ -278,12 +278,31 @@ z0_point = (saddle_x0.scalar(size_scalar*2+1:size_scalar*3));
 z1_point = (saddle_x1.scalar(size_scalar*2+1:size_scalar*3));
  
 % check if validation confirmed saddle
+% if any(abs(z0_point(num_variable))<Imin_sad) || ...
+%         any(abs(z1_point(num_variable))<Imin_sad) ||...
+%     any(abs(y0_point(num_variable))<Imin_sad) || ...
+%         any(abs(y1_point(num_variable))<Imin_sad)
+%     error('Bounds still too big!')
+% end
 if any(abs(z0_point(num_variable))<Imin_sad) || ...
-        any(abs(z1_point(num_variable))<Imin_sad) ||...
-    any(abs(y0_point(num_variable))<Imin_sad) || ...
-        any(abs(y1_point(num_variable))<Imin_sad)
-    error('Bounds still too big!')
+        any(abs(z1_point(num_variable))<Imin_sad) %||...
+    %any(abs(y0_point(num_variable))<Imin_sad) || ...
+    %    any(abs(y1_point(num_variable))<Imin_sad)
+    error('Bounds for z still too big! Solution by rescaling')
 end
+Imin_sad_y0 = Imin_sad;
+Imin_sad_y1 = Imin_sad;
+if any(abs(y0_point(num_variable))<Imin_sad_y0) 
+    [~,Imin_sad_y0]=radii_polynomials(saddle_x0,saddle_problem0,DF0_saddle, Aold_saddle);
+end
+if any(abs(y1_point(num_variable))<Imin_sad_y1)
+    [~,Imin_sad_y1]=radii_polynomials(saddle_x1,saddle_problem1,DF1_saddle, Anew_saddle);
+end
+if any(abs(y0_point(num_variable))<Imin_sad_y0) ||...
+    any(abs(y1_point(num_variable))<Imin_sad_y1)
+    error('Bounds dor y still too big! Consider rescaling?')
+end
+
 y0 = midrad(y0_point,Imin_sad);
 y1 = midrad(y1_point,Imin_sad);
  
