@@ -264,6 +264,10 @@ for i =1 : n_iter
         else
             [numerical_check] = if_saddle_numerical(F_old,F_new, x0,x1);
         end
+        if i == 29
+            disp(22)
+        end
+           
         if numerical_check
             if bool_Hopf
                 [saddle_confirmed]=validation_saddle(F_old,F_new, x0,x1,2*bool_Hopf);

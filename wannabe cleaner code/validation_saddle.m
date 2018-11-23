@@ -76,8 +76,22 @@ for i = 1: n_intervals
     end
      
     [saddle_F0_int, saddle_F1_int] = bigger_saddle_system(F0_int, F1_int, x0_int, x1_int); %done
-    saddle_x0_int = compute_saddle(saddle_F0_int,x0_int,x_prime0_int,x_prime_prime0_int); % done
-    saddle_x1_int = compute_saddle(saddle_F1_int,x1_int,x_prime1_int,x_prime_prime1_int); % done
+    
+    % DEBUG RYCHKOV
+    num_variable = 2;
+    rescale_derivative = 10^6;
+    rescale_second_der = 10^5;
+    saddle_F0_int_loc = rescale(saddle_F0_int, 4, rescale_derivative);
+    saddle_F1_int_loc = rescale(saddle_F1_int, 4, rescale_derivative);
+    saddle_F0_int_loc = rescale(saddle_F0_int_loc, 6, rescale_second_der);
+    saddle_F1_int_loc = rescale(saddle_F1_int_loc, 6, rescale_second_der);
+    x_prime0_int(2) = rescale_derivative * x_prime0_int(2);
+    x_prime_prime0_int(2) = rescale_second_der *x_prime_prime0_int(2);
+    x_prime1_int(2) = rescale_derivative * x_prime1_int(2);
+    x_prime_prime1_int(2) = rescale_second_der *x_prime_prime1_int(2);
+    
+    saddle_x0_int = compute_saddle(saddle_F0_int_loc,x0_int,x_prime0_int,x_prime_prime0_int); % done
+    saddle_x1_int = compute_saddle(saddle_F1_int_loc,x1_int,x_prime1_int,x_prime_prime1_int); % done
      
     % %DEBUG
     % figure(1); hold on; plot(i,saddle_x0_int.scalar(x0.size_scalar+ num_variable),'*')
@@ -91,14 +105,14 @@ for i = 1: n_intervals
     end
     if bool_saddle
         use_intlab = temp_use_intlab;
-        [delta, bool_saddle_confirmed] = bound_refinement(saddle_x0_int, saddle_x1_int, saddle_F0_int, saddle_F1_int,num_variable); % done
+        [delta, bool_saddle_confirmed] = bound_refinement(saddle_x0_int, saddle_x1_int, saddle_F0_int_loc, saddle_F1_int_loc,num_variable); % done
         use_intlab = 0;
         if bool_saddle_confirmed
         delta =3; bool_saddle_confirmed=0;
         end
         if bool_saddle_confirmed
             use_intlab = temp_use_intlab;
-            saddle_confirmed = saddle_validation(saddle_x0_int, saddle_x1_int, saddle_F0_int, saddle_F1_int,num_variable);
+            saddle_confirmed = saddle_validation(saddle_x0_int, saddle_x1_int, saddle_F0_int_loc, saddle_F1_int_loc,num_variable);
             use_intlab = temp_use_intlab;
             if saddle_confirmed==0
                 error('Adding intlab is problematic')
@@ -108,8 +122,8 @@ for i = 1: n_intervals
         n_intervals_ref = ceil(1/delta)+1; %ceil(norm(norm(saddle_x0_int-saddle_x1_int))/delta)+1;
         for j = 1: n_intervals_ref
             [saddle_x0_small_int, saddle_x1_small_int, F0_small_int,...
-                F1_small_int] = automatic_refinement(saddle_F0_int, ...
-                saddle_F1_int, saddle_x0_int, saddle_x1_int, n_intervals_ref, j);% done
+                F1_small_int] = automatic_refinement(saddle_F0_int_loc, ...
+                saddle_F1_int_loc, saddle_x0_int, saddle_x1_int, n_intervals_ref, j);% done
             saddle_x0_small_int = Newton_2(saddle_x0_small_int,F0_small_int);
             saddle_x1_small_int = Newton_2(saddle_x1_small_int,F1_small_int);
             bool_saddle_small_int=check_if_saddle_possible(saddle_x0_small_int,saddle_x1_small_int,num_variable); % done
