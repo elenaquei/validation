@@ -68,6 +68,7 @@ if nargin<10 || isempty(bool_saddle)
     bool_saddle = 0;
 end
 
+
 % data coming from the previous iteration
 previous_iter.Y = [];
 previous_iter.Z0 = [];
@@ -167,6 +168,19 @@ saddle_index_var =[];
 
 % validating old system % need a good starting point
 x0 = Newton_2(x0,F_old,[],min_res_N);
+
+% symmetrising initial condition and phase conditions
+x0 = x0.symmetrise;
+lin_coef_old = extract_all_lin_coef(F_old.scalar_equations);
+for i = 1:F_old.scalar_equations.number_equations_lin
+    new_lin_coef_i = Xi_vec2vec(symmetrise(vec2Xi_vec(lin_coef_old(i,:),x0)));
+    new_lin_coef_i(end+1) = F_old.scalar_equations.linear_coef{3}(i);
+    F_old.scalar_equations = change_lin_coef_vector(...
+        F_old.scalar_equations,...
+        new_lin_coef_i ,...
+        i); 
+end
+
 try
     if talkative >1
         fprintf('Validation of starting point\n');
@@ -177,6 +191,7 @@ catch
         fprintf('Starting point require extra precision, running Newton\n');
     end
     x0 = Newton_2(x0,F_old,[],min_res_N);
+    x0 = x0.symmetrise;
     
     % set up some requesed elements for the validation
     DF0 = derivative_to_matrix(derivative(F_old,x0,0));
