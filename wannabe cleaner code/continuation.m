@@ -228,6 +228,7 @@ for i =1 : n_iter
     if flag <1 % if the validation did not work, redo the previous steps
         tries =1;
         while flag<1 && tries<5
+            previous_iter = [];
             h = h* new_step;
             tries = tries+1;
             if talkative >0
@@ -245,8 +246,8 @@ for i =1 : n_iter
             
             use_intlab = temp_use_intval;
             % validate
-            [flag,Imin,Imax,previous_iter,Yvector,Z0vector,Z1vector,Z2vector,new_step] = radii_polynomials_cont_new(x0,x1,DF0,DF1,...
-                F_old,F_new,previous_iter,Aold,Anew);
+            [flag,Imin,Imax,~,Yvector,Z0vector,Z1vector,Z2vector,new_step] = radii_polynomials_cont_new(x0,x1,DF0,DF1,...
+                F_old,F_new,[],Aold,Anew);
             
             use_intlab = 0;
         end
@@ -279,9 +280,7 @@ for i =1 : n_iter
         else
             [numerical_check] = if_saddle_numerical(F_old,F_new, x0,x1);
         end
-        if i == 29
-            disp(22)
-        end
+        
            
         if numerical_check
             if bool_Hopf
@@ -351,6 +350,7 @@ for i =1 : n_iter
         F_not_square.scalar_equations = reshape(F_not_square.scalar_equations, x0.nodes+add_node);
         DF1 = derivative_to_matrix(derivative(F_new,x1,0));
         Anew = inv(DF1);
+        previous_iter =[];
     end
     if decrease_node 
         if talkative >0
@@ -389,6 +389,7 @@ for i =1 : n_iter
         
         DF1 = derivative_to_matrix(derivative(F_new,x1,0));
         Anew = inv(DF1);
+        previous_iter = [];
     end
     
     

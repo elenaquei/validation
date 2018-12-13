@@ -96,7 +96,7 @@ if strcmp(possibility,'saddle')||strcmp(possibility,'all')
     end
     fprintf('Saddle:%i\n',try_saddle);
 end
-if strcmp(possibility,'rossler')||strcmp(possibility,'all')
+if strcmp(possibility,'rossler')||strcmp(possibility,'all')|| 1==2
     rescaling_saddle=72;%??
     refinement_saddle =72;%??
     try
@@ -109,7 +109,7 @@ if strcmp(possibility,'rossler')||strcmp(possibility,'all')
     end
     fprintf('Rossler:%i\n',try_rossler);
 end
-if strcmp(possibility,'hyper')||strcmp(possibility,'all')
+if strcmp(possibility,'hyper')||strcmp(possibility,'all')|| 1==2
     rescaling_saddle=22;%??
     refinement_saddle =22;%??
     try

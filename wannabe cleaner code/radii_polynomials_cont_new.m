@@ -111,7 +111,7 @@ if use_intlab
     A0=intval(A0);
     A1=intval(A1);
     Adagger_delta=intval(Adagger_delta);
-    nu=intval(nu);
+    %nu=intval(nu);
     xBar0=intval(xBar0);
     xBar1=intval(xBar1);
     for i=1:xBar0.size_vector

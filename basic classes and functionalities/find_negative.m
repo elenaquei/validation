@@ -17,11 +17,11 @@ function [Imin,Imax]=find_negative(Z2vector,Z1vector,Z0vector,Yvector)
 global use_intlab
 
 
-if use_intlab
-    a= intval(Z2vector);
-    b = intval(Z1vector)+intval(Z0vector);
-    b = b - intval(1);
-    c = intval(Yvector);
+if isa(Z2vector,'intval')
+    a= sup(Z2vector);
+    b = sup(Z1vector)+sup(Z0vector);
+    b = b - 1;
+    c = sup(Yvector);
 else
     a = Z2vector;
     b = Z1vector + Z0vector -1;
@@ -47,12 +47,12 @@ for i = 1:length(a)
     end
 end
 
-if use_intlab 
-    Imin = sup(Imin);
-    Imax = inf(Imax);
-else
+%if use_intlab 
+%    Imin = sup(Imin);
+%    Imax = inf(Imax);
+%else
     Imin = max(Imin,0);
-end
+%end
 Imin = max(Imin);
 Imax = min(Imax);
 if Imin >Imax

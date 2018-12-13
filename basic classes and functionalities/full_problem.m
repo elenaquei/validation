@@ -324,7 +324,7 @@ classdef full_problem
         
         
         % FUNCTION_SECOND_DERIVATIVE
-        function DDH=Function_second_derivative(alpha,xBar,RAD_MAX)
+        function DDH=Function_second_derivative(alpha,xBar,RAD_MAX,xBar_norm)
             % function Function_second_derivative_new(alpha,xBar,RAD_MAX)  GOOD
             %
             % INPUT:
@@ -350,8 +350,11 @@ classdef full_problem
                 %    DDH=intval(DDH);
                 % the output should be the maximum of the interval anyway
             end
-            
-            XnormC=cnorm_Xi_vector(xBar,nu);
+            if nargin == 4
+                XnormC = xBar_norm;
+            else
+                XnormC=cnorm_Xi_vector(xBar,nu);
+            end
             
             xANDr=XnormC+RAD_MAX;
             

@@ -1,21 +1,21 @@
 % some examples to run the code and check it out
 % 31 August 2017: runs
 
-global azabaza
 global nu
 global use_intlab
 global talkative
 global RAD_MAX
 global Display
-Display = 1;
-talkative = 5;
+Display = 0;
+talkative = 1;
 use_intlab = 0;
 RAD_MAX = 10^-2;
 
-if isempty(azabaza)
+try 
+    intval(1);
+catch
     addpath(genpath('../'))
     startintlab
-    azabaza =1;
 end
 
 
@@ -24,7 +24,7 @@ end
 nu = 1.1;
 pho_null = 28;
 n_nodes = 50;
-step_size = 10^-4;
+step_size = 10^-2;
 sigma = 10;
 beta = 8/3; 
 
@@ -84,13 +84,14 @@ end
 % in pho, starting at pho_null
 sol = Xi_vector([sol2.scalar,pho_null], sol2.vector);
 
-scal_eq = default_scalar_eq(sol);
+scal_eq = fancy_scalar_condition(sol);
 polynomial = from_string_to_polynomial_coef(string_lorenz_cont); 
 
 F_not_square = full_problem(scal_eq, polynomial);
 
-n_iter =1;
-s = '../saved elements/lorenz_continuation';
-[s, x_n] = continuation ( sol, F_not_square, n_iter, step_size, [],s, 10^-10);
+n_iter =10000;
+s = './saved elements/lorenz_continuation';
+[s, x_n] = continuation ( sol, F_not_square, n_iter, step_size,[],s,10^-10, 0,1, 0);
 
-
+% still not thaaaat cool
+% (no fold in pho yet)

@@ -44,15 +44,15 @@ xBarS_short=interval_Xi(xBar0,xBar1);
 min_coef1=min(coefs_linear1{1},coefs_linear0{1});
 max_coef1=min(coefs_linear1{1},coefs_linear0{1});
 coefs_linearS{1}=infsup(min_coef1,max_coef1);
-coefs_linearS{1}(1)=0;
+coefs_linearS{1}(end)=0;
 min_coef2=min(coefs_linear1{2},coefs_linear0{2});
 max_coef2=min(coefs_linear1{2},coefs_linear0{2});
 coefs_linearS{2}=infsup(min_coef2,max_coef2);
-coefs_linearS{2}(1,:,:)=0;
+coefs_linearS{2}(end,:,:)=0;
 min_coef3=min(coefs_linear1{3},coefs_linear0{3});
 max_coef3=min(coefs_linear1{3},coefs_linear0{3});
 coefs_linearS{3}=infsup(min_coef3,max_coef3);
-coefs_linearS{3}(1)=0;
+coefs_linearS{3}(end)=0;
 
 xBarS= reshape_Xi(xBarS_short,xBarS_short.nodes*(alpha0.vector_field.deg_vector-1));
 xBarDelta=reshape_Xi(xBarDelta_short,xBarS.nodes);
@@ -69,7 +69,7 @@ alphaS.scalar_equations.linear_coef = coefs_linearS;
 temp_intlab=use_intlab;
 use_intlab=1;
 %alphaS = reshape(alphaS, xBarS.nodes);
-DH_xs2 = derivative_to_matrix(derivative(alphaS,xBarS_short));  % in saddle, here we get NaNs
+DH_xs2 = derivative_to_matrix(derivative(alphaS,xBarS_short)); 
 new_nodes = ((size(DH_xs2,1)-xBar0.size_scalar)/xBar0.size_vector - 1)/2;
 xBarDelta_long = reshape_Xi(xBarDelta,new_nodes);
 
