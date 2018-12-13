@@ -21,7 +21,7 @@ end
 
 %% standard Lorenz continuation
 
-nu = 1.1;
+nu = 1.01;
 pho_null = 28;
 n_nodes = 50;
 step_size = 10^-2;
@@ -89,7 +89,7 @@ polynomial = from_string_to_polynomial_coef(string_lorenz_cont);
 
 F_not_square = full_problem(scal_eq, polynomial);
 
-n_iter =10000;
+n_iter =2000;
 s = './saved elements/lorenz_continuation';
 [s, x_n] = continuation ( sol, F_not_square, n_iter, step_size,[],s,10^-10, 0,1, 0);
 
