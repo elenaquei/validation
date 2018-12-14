@@ -68,6 +68,7 @@ if nargin<10 || isempty(bool_saddle)
     bool_saddle = 0;
 end
 
+x_0 = x0;
 
 % data coming from the previous iteration
 previous_iter.Y = [];
@@ -178,7 +179,7 @@ for i = 1:F_old.scalar_equations.number_equations_lin
     F_old.scalar_equations = change_lin_coef_vector(...
         F_old.scalar_equations,...
         new_lin_coef_i ,...
-        i); 
+        i);
 end
 
 try
@@ -281,7 +282,7 @@ for i =1 : n_iter
             [numerical_check] = if_saddle_numerical(F_old,F_new, x0,x1);
         end
         
-           
+        
         if numerical_check
             if bool_Hopf
                 [saddle_confirmed]=validation_saddle(F_old,F_new, x0,x1,2*bool_Hopf);
@@ -312,14 +313,14 @@ for i =1 : n_iter
     end
     
     
-    % test on the smoothness condition 
+    % test on the smoothness condition
     flag_smoothness = smoothness_condition(x0, x_dot_0, x1,x_dot_1, Imin);
     if flag_smoothness == 0
         error('The validated curve is not guaranteed to be smooth')
     end
     
     % check if too many or too little nodes
-    % 
+    %
     % introduce 2 counters: too many, too little
     % if was already too many, new solution smaller
     % if too many, last mode(s) of new step imposed zero
@@ -352,9 +353,10 @@ for i =1 : n_iter
         Anew = inv(DF1);
         previous_iter =[];
     end
-    if decrease_node 
+    if decrease_node
         if talkative >0
             fprintf('At iteration %i, the number of nodes is decreased by %i. New number of modes %i\n', i, abs(decrease_node), x0.nodes+decrease_node);
+            fprintf('\n Leap iteration to decrease the number of nodes \n')
         end
         % necessary temporary elements for "one point validation"
         x1_big = x1;
@@ -368,7 +370,7 @@ for i =1 : n_iter
         F_not_square.scalar_equations = reshape(F_not_square.scalar_equations, x0.nodes+decrease_node);
         % following node with less modes
         
-        % one point validation 
+        % one point validation
         x1_small = reshape_Xi(x1, x0.nodes);
         F_new_small = F_new;
         F_not_square_small = F_not_square ;
@@ -425,6 +427,18 @@ for i =1 : n_iter
     Z1_iter(:,i)   = vert(Z1vector);
     Z2_iter(:,i)   = vert(Z2vector);
     Y_iter(:,i)    = vert(Yvector);
+    if mod(i,250) == 0
+        
+        x_n = x1;
+        x_dot_n = x_dot_1;
+        s_temp = strcat(s,'temp');
+        if bool_saddle && ~isempty(saddle_index_var)
+            save(s_temp, 'x_n', 'x_dot_n', 'step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter', ...
+                'saddle_x0_stored','saddle_x1_stored','saddle_y0','saddle_y1','saddle_z0','saddle_z','saddle_index_var');
+        else
+            save(s_temp, 'x_n', 'x_dot_n','step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter');
+        end
+    end
 end
 
 x_n = x1;
@@ -432,10 +446,10 @@ x_dot_n = x_dot_1;
 
 % save to location the elements that are interesting
 if bool_saddle && ~isempty(saddle_index_var)
-    save(s, 'x_n', 'x_dot_n', 'step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter', ...
+    save(s, 'x_0','x_n', 'x_dot_n', 'step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter', ...
         'saddle_x0_stored','saddle_x1_stored','saddle_y0','saddle_y1','saddle_z0','saddle_z','saddle_index_var');
 else
-    save(s, 'x_n', 'x_dot_n','step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter');
+    save(s, 'x_0','x_n', 'x_dot_n','step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter');
 end
 
 return
