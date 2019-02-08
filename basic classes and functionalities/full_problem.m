@@ -123,6 +123,24 @@ classdef full_problem
         end
         % end RESHAPE
         
+        
+        % RESCALE
+        function beta = rescale(alpha, index_lambda, rescaling)
+            if index_lambda > alpha.scalar_equations.size_scalar + ...
+                    alpha.scalar_equations.size_vector
+                error('Index of rescaled variable too big')
+            end
+            beta = alpha;
+            if index_lambda <= alpha.scalar_equations.size_scalar
+                beta.scalar_equations = rescale(alpha.scalar_equations, index_lambda, rescaling);
+                beta.vector_field = rescale(alpha.vector_field, index_lambda, rescaling);
+            else
+                error('not coded yet');
+            end
+            
+        end
+        % end RESCALE
+        
         % FUNCTION_DIRECTIONAL_SECOND_DERIVATIVE
         function DDH=Function_directional_second_derivative(alpha,xBar,dir1,dir2)
             %  function DDH=Function_directional_second_derivative(alpha,xBar,dir1,dir2)
@@ -306,7 +324,7 @@ classdef full_problem
         
         
         % FUNCTION_SECOND_DERIVATIVE
-        function DDH=Function_second_derivative(alpha,xBar,RAD_MAX)
+        function DDH=Function_second_derivative(alpha,xBar,RAD_MAX,xBar_norm)
             % function Function_second_derivative_new(alpha,xBar,RAD_MAX)  GOOD
             %
             % INPUT:
@@ -332,8 +350,11 @@ classdef full_problem
                 %    DDH=intval(DDH);
                 % the output should be the maximum of the interval anyway
             end
-            
-            XnormC=cnorm_Xi_vector(xBar,nu);
+            if nargin == 4
+                XnormC = xBar_norm;
+            else
+                XnormC=cnorm_Xi_vector(xBar,nu);
+            end
             
             xANDr=XnormC+RAD_MAX;
             
@@ -354,15 +375,22 @@ classdef full_problem
                     if any(size(beta.power_vector{i}{j},2)>1)
                         error('Second derivative not yet ready for this')
                     end
-                    d=[beta.power_scalar{i}(:,j).', beta.power_vector{i}{j}.'];
-                    if use_intlab
-                        const=sup(abs(beta.value{i}(j)));
-                    else
-                        const=abs(beta.value{i}(j));
+                    if beta.value{i}(j) == 0
+                        continue
                     end
+                    k_vec = j;
+                    for kk = j+1:beta.n_terms(i)
+                        if  all(beta.power_vector{i}{j} ==  beta.power_vector{i}{kk})
+                            k_vec(end+1) = kk;
+                        end
+                    end
+                    d=[beta.power_scalar{i}(:,j).', beta.power_vector{i}{j}.'];
                     N=length(d);
                     e=eye(N);
                     
+                    scalar_part_x = xANDr(1:size_scal);
+                    vector_part_x = xANDr(size_scal+1:end);
+                            
                     % DDH_i = sum_{k=1,d_k>0}^N sum_{j=1,(d-e_k)_n>0}^N
                     % (d-e_k)_n d_k x^{d-e_k-e_n}
                     
@@ -374,10 +402,26 @@ classdef full_problem
                             if d(n)-e(n,k)<=0
                                 continue
                             end
-                            DDH(i+n_scalar_equations)= DDH(i+n_scalar_equations) + abs(const*d(k)*(d(n)-e(k,n))*...
-                                prod(xANDr.^((d-e(k,:)-e(n,:)).')));
+                            const_vec = 0*k_vec;
+                            for kk = 1:length(k_vec)
+                                power_scalar_kk=beta.power_scalar{i}(:,k_vec(kk))-e(k,1:size_scal).'-e(n,1:size_scal).';
+                                d=[beta.power_scalar{i}(:,k_vec(kk)).', beta.power_vector{i}{j}.'];
+                                if use_intlab
+                                    const_vec(kk)=d(k)*(d(n)-e(k,n))*sup(abs(beta.value{i}(k_vec(kk))))*prod(scalar_part_x.^power_scalar_kk);
+                                else
+                                    const_vec(kk)=d(k)*(d(n)-e(k,n))*abs(beta.value{i}(k_vec(kk)))*prod(scalar_part_x.^power_scalar_kk);
+                                end
+                            end
+                            const = sum(const_vec);
+                            power_loc = (d-e(k,:)-e(n,:)).';
+                            power_vector_x_k = power_loc(size_scal+1:end);
+                            
+                            DDH(i+n_scalar_equations)= DDH(i+n_scalar_equations) + abs(const*...
+                                prod(vector_part_x.^power_vector_x_k));
+                            
                         end
                     end
+                    beta.value{i}(k_vec) = 0;
                     
                 end
             end
@@ -389,18 +433,26 @@ classdef full_problem
             
             for i=1:xBar.size_vector % equation
                 for j=1:alpha.n_terms(i) % element of the equation
+            
                     if any(size(alpha.power_vector{i}{j},2)>1)
                         error('Second derivative not yet ready for this')
                     end
-                    d=[alpha.power_scalar{i}(:,j).', alpha.power_vector{i}{j}.'];
-                    if use_intlab
-                        const=sup(abs(alpha.value{i}(j)));
-                    else
-                        const=abs(alpha.value{i}(j));
+                    if alpha.value{i}(j) == 0
+                        continue
                     end
+                    k_vec = j;
+                    for kk = j+1:alpha.n_terms(i)
+                        if  all(alpha.power_vector{i}{j} ==  alpha.power_vector{i}{kk})
+                            k_vec(end+1) = kk;
+                        end
+                    end
+                    d=[alpha.power_scalar{i}(:,j).', alpha.power_vector{i}{j}.'];
                     N=length(d);
                     e=eye(N);
                     
+                    scalar_part_x = xANDr(1:size_scal);
+                    vector_part_x = xANDr(size_scal+1:end);
+                            
                     % DDH_i = sum_{k=1,d_k>0}^N sum_{j=1,(d-e_k)_n>0}^N
                     % (d-e_k)_n d_k x^{d-e_k-e_n}
                     
@@ -412,13 +464,30 @@ classdef full_problem
                             if d(n)-e(n,k)<=0
                                 continue
                             end
-                            DDH(i+n_scalar_equations)= DDH(i+n_scalar_equations) + abs(const*d(k)*(d(n)-e(k,n))*...
-                                prod(xANDr.^((d-e(k,:)-e(n,:)).')));
+                            const_vec = 0*k_vec;
+                            for kk = 1:length(k_vec)
+                                power_scalar_kk=alpha.power_scalar{i}(:,k_vec(kk))-e(k,1:size_scal).'-e(n,1:size_scal).';
+                                d=[alpha.power_scalar{i}(:,k_vec(kk)).', alpha.power_vector{i}{j}.'];
+                                if use_intlab
+                                    const_vec(kk)=d(k)*(d(n)-e(k,n))*sup(abs(alpha.value{i}(k_vec(kk))))*prod(scalar_part_x.^power_scalar_kk);
+                                else
+                                    const_vec(kk)=d(k)*(d(n)-e(k,n))*abs(alpha.value{i}(k_vec(kk)))*prod(scalar_part_x.^power_scalar_kk);
+                                end
+                            end
+                            const = sum(const_vec);
+                            power_loc = (d-e(k,:)-e(n,:)).';
+                            power_vector_x_k = power_loc(size_scal+1:end);
+                            
+                            DDH(i+n_scalar_equations)= DDH(i+n_scalar_equations) + abs(const*...
+                                prod(vector_part_x.^power_vector_x_k));
+                            
                         end
                     end
-                    
+                    alpha.value{i}(k_vec) = 0;
                 end
+                    
             end
+        
         end
         % end FUNCTION_SECOND_DERIVATIVE
         

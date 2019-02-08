@@ -68,6 +68,8 @@ if nargin<10 || isempty(bool_saddle)
     bool_saddle = 0;
 end
 
+x_0 = x0;
+
 % data coming from the previous iteration
 previous_iter.Y = [];
 previous_iter.Z0 = [];
@@ -167,6 +169,19 @@ saddle_index_var =[];
 
 % validating old system % need a good starting point
 x0 = Newton_2(x0,F_old,[],min_res_N);
+
+% symmetrising initial condition and phase conditions
+x0 = x0.symmetrise;
+lin_coef_old = extract_all_lin_coef(F_old.scalar_equations);
+for i = 1:F_old.scalar_equations.number_equations_lin
+    new_lin_coef_i = Xi_vec2vec(symmetrise(vec2Xi_vec(lin_coef_old(i,:),x0)));
+    new_lin_coef_i(end+1) = F_old.scalar_equations.linear_coef{3}(i);
+    F_old.scalar_equations = change_lin_coef_vector(...
+        F_old.scalar_equations,...
+        new_lin_coef_i ,...
+        i);
+end
+
 try
     if talkative >1
         fprintf('Validation of starting point\n');
@@ -177,6 +192,7 @@ catch
         fprintf('Starting point require extra precision, running Newton\n');
     end
     x0 = Newton_2(x0,F_old,[],min_res_N);
+    x0 = x0.symmetrise;
     
     % set up some requesed elements for the validation
     DF0 = derivative_to_matrix(derivative(F_old,x0,0));
@@ -213,6 +229,7 @@ for i =1 : n_iter
     if flag <1 % if the validation did not work, redo the previous steps
         tries =1;
         while flag<1 && tries<5
+            previous_iter = [];
             h = h* new_step;
             tries = tries+1;
             if talkative >0
@@ -230,8 +247,8 @@ for i =1 : n_iter
             
             use_intlab = temp_use_intval;
             % validate
-            [flag,Imin,Imax,previous_iter,Yvector,Z0vector,Z1vector,Z2vector,new_step] = radii_polynomials_cont_new(x0,x1,DF0,DF1,...
-                F_old,F_new,previous_iter,Aold,Anew);
+            [flag,Imin,Imax,~,Yvector,Z0vector,Z1vector,Z2vector,new_step] = radii_polynomials_cont_new(x0,x1,DF0,DF1,...
+                F_old,F_new,[],Aold,Anew);
             
             use_intlab = 0;
         end
@@ -264,6 +281,8 @@ for i =1 : n_iter
         else
             [numerical_check] = if_saddle_numerical(F_old,F_new, x0,x1);
         end
+        
+        
         if numerical_check
             if bool_Hopf
                 [saddle_confirmed]=validation_saddle(F_old,F_new, x0,x1,2*bool_Hopf);
@@ -294,14 +313,14 @@ for i =1 : n_iter
     end
     
     
-    % test on the smoothness condition 
+    % test on the smoothness condition
     flag_smoothness = smoothness_condition(x0, x_dot_0, x1,x_dot_1, Imin);
     if flag_smoothness == 0
         error('The validated curve is not guaranteed to be smooth')
     end
     
     % check if too many or too little nodes
-    % 
+    %
     % introduce 2 counters: too many, too little
     % if was already too many, new solution smaller
     % if too many, last mode(s) of new step imposed zero
@@ -322,7 +341,7 @@ for i =1 : n_iter
     end
     
     if add_node
-        if talkative >1
+        if talkative >0
             fprintf('At iteration %i, the number of nodes is increased by %i. New number of modes %i\n', i, add_node, x0.nodes+add_node);
         end
         x1 = reshape_Xi(x1, x1.nodes+add_node);
@@ -332,10 +351,12 @@ for i =1 : n_iter
         F_not_square.scalar_equations = reshape(F_not_square.scalar_equations, x0.nodes+add_node);
         DF1 = derivative_to_matrix(derivative(F_new,x1,0));
         Anew = inv(DF1);
+        previous_iter =[];
     end
-    if decrease_node 
-        if talkative >1
+    if decrease_node
+        if talkative >0
             fprintf('At iteration %i, the number of nodes is decreased by %i. New number of modes %i\n', i, abs(decrease_node), x0.nodes+decrease_node);
+            fprintf('\n Leap iteration to decrease the number of nodes \n')
         end
         % necessary temporary elements for "one point validation"
         x1_big = x1;
@@ -349,7 +370,7 @@ for i =1 : n_iter
         F_not_square.scalar_equations = reshape(F_not_square.scalar_equations, x0.nodes+decrease_node);
         % following node with less modes
         
-        % one point validation 
+        % one point validation
         x1_small = reshape_Xi(x1, x0.nodes);
         F_new_small = F_new;
         F_not_square_small = F_not_square ;
@@ -370,6 +391,7 @@ for i =1 : n_iter
         
         DF1 = derivative_to_matrix(derivative(F_new,x1,0));
         Anew = inv(DF1);
+        previous_iter = [];
     end
     
     
@@ -405,6 +427,18 @@ for i =1 : n_iter
     Z1_iter(:,i)   = vert(Z1vector);
     Z2_iter(:,i)   = vert(Z2vector);
     Y_iter(:,i)    = vert(Yvector);
+    if mod(i,250) == 0
+        
+        x_n = x1;
+        x_dot_n = x_dot_1;
+        s_temp = strcat(s,'temp');
+        if bool_saddle && ~isempty(saddle_index_var)
+            save(s_temp, 'x_n', 'x_dot_n', 'step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter', ...
+                'saddle_x0_stored','saddle_x1_stored','saddle_y0','saddle_y1','saddle_z0','saddle_z','saddle_index_var');
+        else
+            save(s_temp, 'x_n', 'x_dot_n','step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter');
+        end
+    end
 end
 
 x_n = x1;
@@ -412,10 +446,10 @@ x_dot_n = x_dot_1;
 
 % save to location the elements that are interesting
 if bool_saddle && ~isempty(saddle_index_var)
-    save(s, 'x_n', 'x_dot_n', 'step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter', ...
+    save(s, 'x_0','x_n', 'x_dot_n', 'step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter', ...
         'saddle_x0_stored','saddle_x1_stored','saddle_y0','saddle_y1','saddle_z0','saddle_z','saddle_index_var');
 else
-    save(s, 'x_n', 'x_dot_n','step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter');
+    save(s, 'x_0','x_n', 'x_dot_n','step_size', 'norm_x', 'Interval', 'Y_iter', 'Z0_iter', 'Z1_iter', 'Z2_iter');
 end
 
 return

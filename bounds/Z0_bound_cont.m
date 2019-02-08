@@ -41,11 +41,11 @@ end
 if use_intlab
     Z0_vector=norm_Ximat(max(sup(abs(B0)),sup(abs(B1)))+abs(1/8*A_d*DHd),xBar0);
     Z0=norm_Ximat(max(sup(abs(B0)),sup(abs(B1))),xBar0);
-    Z0Delta=norm_Ximat(abs(1/8*A_d*DHd),xBar0);
+    Z0Delta=norm_Ximat(abs(1/4*A_d*DHd),xBar0);
 else
     Z0_vector=norm_Ximat(max(abs(B0),abs(B1))+abs(1/8*A_d*DHd),xBar0);
     Z0=norm_Ximat(max(abs(B0),abs(B1)),xBar0);
-    Z0Delta=norm_Ximat(abs(1/8*A_d*DHd),xBar0);
+    Z0Delta=norm_Ximat(abs(1/4*A_d*DHd),xBar0);
 end
 
 Z0_s=[0*Z0, Z0Delta,0*Z0,Z0];

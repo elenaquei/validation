@@ -27,7 +27,7 @@ step_size = 10^-4;
 sigma = 10;
 beta = 8/3;
 pho = 28;
-n_iter =1;
+n_iter =800;
 s = 'saved elements/lorenz_continuation'; % path where the validation will be saved
 
 % construct the numerical solution with forward integration from known

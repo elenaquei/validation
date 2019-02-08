@@ -31,7 +31,7 @@ end
 
 nu = 1.05; 
 mu = 0.1;
-n_iter = 100;
+n_iter = 500;
 s='vdp_cont2';
 % DATA OF THE PROBLEM
 % number of nodes requested in Fourier

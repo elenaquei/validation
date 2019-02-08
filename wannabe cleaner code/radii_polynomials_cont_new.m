@@ -101,8 +101,8 @@ end
 Adagger_delta=DH1-DH0;
 
 % symmetrise A0 and A1
-%  A0=symmetrise_A(A0,xBar0);
-%  A1=symmetrise_A(A1,xBar0);
+A0=symmetrise_A(A0,xBar0);
+A1=symmetrise_A(A1,xBar0);
 
 % change into intvals
 if use_intlab
@@ -111,7 +111,7 @@ if use_intlab
     A0=intval(A0);
     A1=intval(A1);
     Adagger_delta=intval(Adagger_delta);
-    nu=intval(nu);
+    %nu=intval(nu);
     xBar0=intval(xBar0);
     xBar1=intval(xBar1);
     for i=1:xBar0.size_vector
@@ -187,28 +187,30 @@ if any(size(Imin))<1 || min(Imin,Imax)<0
     return
 end
 
-% computation of ideal stepsize
-r0=(Imin+Imax)/2;
-poly_s=Ys+r0*(Z0s+Z1s)+r0^2*Z2s;
-poly_s(:,end)=poly_s(:,end)-r0;
-while sum(abs(poly_s(:,1)))==0
-    poly_s=poly_s(:,2:end);
-end
-s_possible=max(roots(max(poly_s)));
-%s_possible=zeros(xBar0.size_vector+xBar0.size_scalar,length(poly_s(1,:))-1);
-%for i=1:xBar0.size_vector+xBar0.size_scalar
-%    s_possible(i,:)=roots(poly_s(i,:));
-%end
-%s_possible=min(abs(s_possible(imag(s_possible)==0))-1);
-if s_possible>.15
-    new_step=(1+s_possible)/2;
-elseif s_possible>.1
-    new_step=1;
-elseif s_possible>0.3
-    new_step=0.95;
-else
-    new_step=0.95-abs(s_possible);
-end
+% % computation of ideal stepsize
+% r0=(Imin+Imax)/2;
+% poly_s=Ys+r0*(Z0s+Z1s)+r0^2*Z2s;
+% poly_s(:,end)=poly_s(:,end)-r0;
+% while sum(abs(poly_s(:,1)))==0
+%     poly_s=poly_s(:,2:end);
+% end
+% s_possible=max(roots(max(poly_s)));
+% %s_possible=zeros(xBar0.size_vector+xBar0.size_scalar,length(poly_s(1,:))-1);
+% %for i=1:xBar0.size_vector+xBar0.size_scalar
+% %    s_possible(i,:)=roots(poly_s(i,:));
+% %end
+% %s_possible=min(abs(s_possible(imag(s_possible)==0))-1);
+% if s_possible>.15
+%     new_step=(1+s_possible)/2;
+% elseif s_possible>.1
+%     new_step=1;
+% elseif s_possible>0.3
+%     new_step=0.95;
+% else
+%     new_step=0.95-abs(s_possible);
+% end
+
+new_step = ideal_stepsize(Imin, Imax, Ys, Z0s, Z1s, Z2s);
 
 % plot
 if Display

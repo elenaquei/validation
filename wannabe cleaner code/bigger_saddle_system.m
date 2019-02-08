@@ -75,16 +75,18 @@ function [calligraphic_G0,calligraphic_G1] = saddle_scalar_eq(normal_G0,normal_G
 % calligrafic_G     polynomial_coefs, with no dots nor delays, fitting for
 %                   the validation of the saddle node
 % 
-global rescaling_saddle 
+%global rescaling_saddle 
 % REF was 500 for Lorenz 84 model
 % 500 works for Rychkov as well
 %REF rescaling factor in the computation of the derivative w.r.t. the parameter %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if isempty(rescaling_saddle)
-    REF = 1;
-else
-    REF=rescaling_saddle;
-end
+%if isempty(rescaling_saddle)
+    REF1 = 1;
+    REF2 = 1;
+%else
+%    REF1=rescaling_saddle(1);
+%    REF2=rescaling_saddle(end);
+%end
 
 if normal_G0.polynomial_equations~=normal_G1.polynomial_equations
  error('The polynomial part of the scalar equations must agree')
@@ -104,15 +106,15 @@ coef_Delta = coef_0;
 coef_Delta{1} = coef_1{1} - coef_0{1};
 coef_Delta{2} = coef_1{2} - coef_0{2};
 coef_Delta{3} = coef_1{3} - coef_0{3};
-coef_Delta{1} = REF*(coef_1{1} - coef_0{1});%with the REFinement, it works
-coef_Delta{2} = REF*(coef_1{2} - coef_0{2});
-coef_Delta{3} = REF*(coef_1{3} - coef_0{3});
+coef_Delta{1} = (coef_1{1} - coef_0{1});%with the REFinement, it works
+coef_Delta{2} = (coef_1{2} - coef_0{2});
+coef_Delta{3} = (coef_1{3} - coef_0{3});
 
 
 new_coef_1_and_2 =@(vec,vec_Delta) cat(1,cat(2,vec, 0*vec, 0*vec),...
-    cat(2,vec_Delta, vec, 0*vec),...
-    cat(2,0*vec, 2*vec_Delta, vec));
-new_coef_3 = @(vec,vec_Delta)[vert(vec);vert(vec_Delta); 0*vec];
+    cat(2,REF1*vec_Delta, vec, 0*vec),...
+    cat(2,0*vec, 2*REF2/REF1*vec_Delta, vec));
+new_coef_3 = @(vec,vec_Delta)[vert(vec);REF1*vert(vec_Delta); 0*vec];
 
 calligraphic_E0 = cell(3,1);
 calligraphic_E0{1} = new_coef_1_and_2(coef_0{1},coef_Delta{1});
@@ -145,6 +147,8 @@ function [new_pol,DxHyy] = saddle_expansion(old_pol)
 % new_pol = [Dx(olp_pol)y ; Dxx(old_pol) yy + Dx(old_pol)z; old_pol]
 % corresponding to the extended system referred to in the pdf
 
+%global rescaling_saddle 
+
 n_equation = old_pol.n_equations;
 value_new = cell(3*n_equation,1);
 scalar_pow_new = cell(3*n_equation,1);
@@ -174,6 +178,11 @@ for i=1:n_equation
     [c_yy, d1_yy, d2_yy, d3_yy] = Dx_y(c_y, d1_y, d2_y, d3_y);
     [c_z, d1_z, d2_z, d3_z] = Dx_z(c_big, d1_big, d2_big, d3_big);
     [c, d1, d2, d3] = sum_coef(c_yy, d1_yy, d2_yy,d3_yy,c_z, d1_z, d2_z,d3_z);
+%     if length(rescaling_saddle)==2
+%         r1 = rescaling_saddle(1);
+%         r2 = rescaling_saddle(2);
+%         [c, d1, d2, d3] = sum_coef((r2/r1)*c_yy, d1_yy, d2_yy,d3_yy,c_z, d1_z, d2_z,d3_z);
+%     end
     
     % delete zero terms
     [c_yy, d1_yy, d2_yy, d3_yy] = contract (c_yy, d1_yy, d2_yy, d3_yy);

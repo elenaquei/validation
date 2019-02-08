@@ -34,6 +34,7 @@ function [Z2vector,Z2_s]=Z2_bound_cont_new(A0,A1,xBar0,xBar1,alpha)
 %       ( |x|_c +r )^(d-e_k-e_l)
 
 global RAD_MAX
+global nu
 %global use_intlab
 global talkative
 
@@ -42,18 +43,20 @@ if isempty(RAD_MAX)
 end
 %RAD_MAX=10^-5;
 
-xBar=max(abs(xBar1),abs(xBar0));
+xBar=max(cnorm_Xi_vector(xBar1,nu),cnorm_Xi_vector(xBar0,nu));
 
 if isintval(A0)
     abs_A0=abs(A0);
     abs_A1=abs(A1);
-    A_ij=component_matrix_norm(max(abs_A0.sup,abs_A1.sup),xBar1);    
+    A_ij=max(component_matrix_norm(abs_A0.sup,xBar1),...
+        component_matrix_norm(abs_A1.sup,xBar1));    
 else
-    A_ij=component_matrix_norm(max(abs(A0),abs(A1)),xBar1);
+    A_ij=max(component_matrix_norm(A0,xBar1),...
+        component_matrix_norm(A1,xBar1)); 
 end
 
 
-DDH=Function_second_derivative(alpha,xBar,RAD_MAX); 
+DDH=Function_second_derivative(alpha,xBar1,RAD_MAX,xBar); 
 % remark: the output WILL/SHOULD be a Xi_vector because only the convolution terms are
 % left. BUT by now it's just a plain and normal vector. 
 

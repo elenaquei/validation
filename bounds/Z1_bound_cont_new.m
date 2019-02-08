@@ -52,6 +52,26 @@ for i = 1:alpha1.scalar_equations.number_equations_lin
     DDP(i) = max(norm(vec2Xi_vec(coef_Delta,xBar0)));
 end
 
+%
+% term : A_D * partial_s H_s(x_s) x_D
+% 
+partial_sH_sx_D = zeros(length(DDP),1);
+vec_Delta = Xi_vec2vec(xBar0-xBar1);
+if isintval(vec_Delta)
+    partial_sH_sx_D = intval(partial_sH_sx_D);
+end
+for i = 1:alpha1.scalar_equations.number_equations_lin
+    coef_1 = extract_lin_coef(alpha1.scalar_equations, i);
+    coef_0 =  extract_lin_coef(alpha0.scalar_equations, i);
+    const1 = alpha1.scalar_equations.linear_coef{3}(i);
+    const0 =  alpha0.scalar_equations.linear_coef{3}(i);
+    coef_Delta = coef_1-coef_0;
+    const_Delta = const1-const0;
+    partial_sH_sx_D(i) = abs(dot(coef_Delta,vec_Delta)+const_Delta);
+end
+if isintval(vec_Delta)
+    partial_sH_sx_D = sup(partial_sH_sx_D);
+end
 
 % creating interval matrix for As
 if isintval(A0) 
@@ -64,7 +84,7 @@ end
 As_ij= component_matrix_norm(As,xBar0);
 Adiff_ij= component_matrix_norm(A1-A0,xBar0); % A_\Delta
 
-sum_of_derivatives=As_ij*DDDP*deltax*deltax+2*Adiff_ij*DDP*deltax;
+sum_of_derivatives=As_ij*DDDP*deltax*deltax+2*Adiff_ij*DDP*deltax + 2*Adiff_ij*partial_sH_sx_D;
 
 %if use_intlab
     OnesNM=(ones(N+M,1));

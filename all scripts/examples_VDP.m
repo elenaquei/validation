@@ -19,7 +19,7 @@ catch
 end
 
 
-%% standerad VDP
+%% standard VDP
 % Van der Pol 
 
 

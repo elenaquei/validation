@@ -13,8 +13,11 @@ if use_intlab
 %    DDH=intval(DDH);
 % the output should be the maximum of the interval anyway
 end
-
-XnormC=cnorm_Xi_vector(xBar,nu);
+if isa(xBar,'Xi_vector')
+    XnormC=cnorm_Xi_vector(xBar,nu);
+else
+    XnormC = xBar;
+end
 
 xANDr=XnormC+RAD_MAX;
 

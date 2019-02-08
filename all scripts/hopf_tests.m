@@ -24,8 +24,8 @@ use_intlab = 0; % DUMMY, should be changed!
 RAD_MAX = 10^-2; % maximum radius allowed, used for the computation of the Z2 bound
 nu = 1.1; % nu of the nu-norm used
 
-rescaling_saddle=1;
-refinement_saddle = 300;
+rescaling_saddle=10^4;
+refinement_saddle = 700;
 
 % if first run, add Intlab and start it (take care, starting Intlab cancels
 % all break points)
